@@ -22,14 +22,18 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [localImageUrl, setLocalImageUrl] = useState('');
   const toast = useToast();
 
+  const acceptedFormatsImagesRegex = /[/.](gif|jpg|jpeg|png)$/i;
+
   const formValidations = {
     image: {
       required: 'Arquivo obrigatório',
-      lessThan10MB: file =>
-        file[0].size < 10000000 || 'O arquivo deve ser menor que 10MB',
-      acceptedFormats: file =>
-        /\.(gif|jpe?g|png)$/i.test(file[0].type) ||
-        'Somente são aceitos arquivos PNG, JPEG e GIF',
+      validate: {
+        lessThan10MB: files =>
+          files[0].size < 10000000 || 'O arquivo deve ser menor que 10MB',
+        acceptedFormats: files =>
+          acceptedFormatsImagesRegex.test(files[0].type) ||
+          'Somente são aceitos arquivos PNG, JPEG e GIF',
+      },
     },
     title: {
       required: 'Título obrigatório',
