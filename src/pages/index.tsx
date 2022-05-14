@@ -20,15 +20,17 @@ interface GetImagesResponse {
   after: string;
   data: Image[];
 }
-async function fetchImages({ pageParam = null }): Promise<GetImagesResponse> {
+const fetchImages = async ({
+  pageParam = null,
+}): Promise<GetImagesResponse> => {
   const { data } = await api('/api/images', {
     params: {
       after: pageParam,
     },
   });
-  console.log(data);
+
   return data;
-}
+};
 
 export default function Home(): JSX.Element {
   const {
@@ -38,23 +40,22 @@ export default function Home(): JSX.Element {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery(
-    'images',
-    fetchImages,
-    {
-      getNextPageParam: lastPage => lastPage?.after || null,
-    }
+  } = useInfiniteQuery('images', fetchImages, {
+    getNextPageParam: lastPage => lastPage?.after || null,
+  });
 
-    // TODO GET AND RETURN NEXT PAGE PARAM
-  );
+  const formattedData = useMemo(() => {
+    const formatted = data?.pages.map(d => d.data.flat());
+    return formatted;
+  }, [data]);
 
-  // const formattedData = useMemo(() => {
-  //   // TODO FORMAT AND FLAT DATA ARRAY
-  // }, [data]);
+  if (isLoading && !isError) {
+    return <Loading />;
+  }
 
-  // TODO RENDER LOADING SCREEN
-
-  // TODO RENDER ERROR SCREEN
+  if (isError) {
+    return <Error />;
+  }
 
   return (
     <>
